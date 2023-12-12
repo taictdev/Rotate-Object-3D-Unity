@@ -1,6 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
+#if  UNITY_ANDROID || UNITY_IOS
 using UnityEngine.InputSystem;
+#endif
 public class RotateObjectWithMouse : MonoBehaviour
 {
     [SerializeField] private float _rotationSpeedPC = 10f;
@@ -8,7 +10,7 @@ public class RotateObjectWithMouse : MonoBehaviour
 
     private void Update()
     {
-
+#if UNITY_WEBGL || UNITY_EDITOR
         if (Input.GetMouseButton(0))
         {
             if (EventSystem.current.IsPointerOverGameObject())
@@ -23,6 +25,17 @@ public class RotateObjectWithMouse : MonoBehaviour
             if (!Mathf.Approximately(mouseX, 0.0f) || !Mathf.Approximately(mouseY, 0.0f))
             {
                 transform.Rotate(Vector3.up, -mouseX, Space.World);
+            }
+        }
+#elif UNITY_ANDROID || UNITY_IOS
+        for (int i = 0; i < Input.touchCount; i++)
+        {
+            Touch touch = Input.GetTouch(i);
+
+            if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+            {
+                Debug.Log($"Click UI touch.fingerId {touch.fingerId}");
+                return;
             }
         }
 
@@ -40,7 +53,7 @@ public class RotateObjectWithMouse : MonoBehaviour
 
             if (EventSystem.current.IsPointerOverGameObject(Touchscreen.current.touches[touchIndex].touchId.ReadValue()))
             {
-                Debug.Log("Click UI");
+                Debug.Log($"Click UI touchIndex {touchIndex}");
                 return;
             }
 
@@ -54,5 +67,16 @@ public class RotateObjectWithMouse : MonoBehaviour
                 transform.Rotate(Vector3.up, -touchDeltaX, Space.World);
             }
         }
+
+        for (int i = 0; i < Input.touchCount; i++)
+        {
+            Touch touch = Input.GetTouch(i);
+
+            if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+            {
+                Debug.Log($"Click UI touch.fingerId {touch.fingerId}");
+            }
+        }
+#endif
     }
 }
